@@ -16,6 +16,20 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/find', async (req, res) => {
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    await client.connect();
+
+    const q = req.query;
+
+    const db = client.db('test');
+    const collection = db.collection('test');
+
+    const result = await collection.find({name:q.name, password:q.password}).toArray()
+    res.json(result);
+
+    await client.close()
+})
 
 app.post('/api', async (req, res) => {
     const client = new MongoClient(uri, { useUnifiedTopology: true });
@@ -29,7 +43,8 @@ app.post('/api', async (req, res) => {
     const collection = db.collection(collectionName);
 
     const result = await collection.insertOne(data);
-    res.json(result);
+
+    res.json(result)
 
     await client.close()
 })
